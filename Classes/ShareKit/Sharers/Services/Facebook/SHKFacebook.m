@@ -54,7 +54,7 @@ static NSString *const kSHKFacebookExpiryDateKey=@"kSHKFacebookExpiryDate";
   static Facebook *facebook=nil;
   @synchronized([SHKFacebook class]) {
     if (! facebook)
-      facebook = [[Facebook alloc] initWithAppId:SHKCONFIG(facebookAppId)];
+      facebook = [[Facebook alloc] initWithAppId:SHKCONFIG(facebookAppId) urlSchemeSuffix:SHKCONFIG(facebookLocalAppId) andDelegate:nil];
   }
   return facebook;
 }
@@ -170,18 +170,8 @@ static NSString *const kSHKFacebookExpiryDateKey=@"kSHKFacebookExpiryDate";
 	}
 	[[NSUserDefaults standardUserDefaults] setObject:itemRep forKey:kSHKStoredItemKey];
 	
-	if (![SHKCONFIG(facebookLocalAppId) isEqualToString:@""]) {
-		[[SHKFacebook facebook] authorize:[NSArray arrayWithObjects:@"publish_stream", 
-										   @"offline_access", nil]
-								 delegate:self
-							   localAppId:SHKCONFIG(facebookLocalAppId)];
-		
-	}else {
-		[[SHKFacebook facebook] authorize:[NSArray arrayWithObjects:@"publish_stream", 
-										   @"offline_access", nil]
-								 delegate:self];
-		
-	}
+	[[SHKFacebook facebook] setSessionDelegate:self];    
+	[[SHKFacebook facebook] authorize:[NSArray arrayWithObjects:@"publish_stream", @"offline_access", nil]];		
 }
 
 - (void)authFinished:(SHKRequest *)req
